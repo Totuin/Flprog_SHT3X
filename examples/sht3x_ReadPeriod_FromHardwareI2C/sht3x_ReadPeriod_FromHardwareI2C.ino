@@ -1,9 +1,7 @@
 #include "flprog_SHT3X.h"
 
 FLProgI2C wireDevice(0);
-FLProgTCA9548A commutator(&wireDevice);
-FLProgVirtualI2C virtualWire(&commutator, 2);
-FLProgSHT3X sensor(&virtualWire);
+FLProgSHT3X sensor(&wireDevice);
 uint32_t startTime;
 uint32_t startTime1;
 uint32_t maxCicleTime = 0;
@@ -14,12 +12,14 @@ void setup()
 {
     Serial.begin(9600);
     wireDevice.begin();
+    sensor.setReadPeriod(1000);
     startTime = millis() + 3000;
     startTime1 = millis() + 3000;
 }
 
 void loop()
 {
+    sensor.pool();
     if (flprog::isTimer(startTime, 1000))
     {
         Serial.print("Temperatura - ");
@@ -32,20 +32,14 @@ void loop()
         Serial.println(maxCicleTime);
         Serial.println();
         startTime = millis();
-        sensor.read();
     }
     else
     {
         if (flprog::isTimer(startTime1, 2000))
         {
             startCicleTime = micros();
-            sensor.pool();
             cicleTime = micros() - startCicleTime;
             maxCicleTime = max(maxCicleTime, cicleTime);
-        }
-        else
-        {
-            sensor.pool();
         }
     }
 }

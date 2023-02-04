@@ -44,6 +44,14 @@ uint16_t FLProgSHT3X::readStatus()
 
 void FLProgSHT3X::pool()
 {
+    if (readPeriod > 0)
+    {
+        if (flprog::isTimer(startReadPeriod, readPeriod))
+        {
+            startReadPeriod = millis();
+            read();
+        }
+    }
     if (step == FLPROG_SHT31X_WAITING_DELAY)
     {
         checkDelay();
@@ -174,4 +182,9 @@ void FLProgSHT3X::setHeater()
 void FLProgSHT3X::heater(bool status)
 {
     newHeaterStatus = status;
+}
+
+void FLProgSHT3X::setReadPeriod(uint32_t period)
+{
+    readPeriod = period;
 }

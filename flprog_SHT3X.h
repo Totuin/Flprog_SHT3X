@@ -35,6 +35,7 @@ public:
     void read();
     bool isHeaterEnabled();
     void heater(bool status);
+    void setReadPeriod(uint32_t period);
 
 private:
     uint8_t crc8(const uint8_t *data, int len);
@@ -56,4 +57,6 @@ private:
     uint8_t codeError = FLPROG_SHT31X_DEVICE_NOT_ERROR;
     bool heaterStatus=0;
     bool newHeaterStatus=0;
+    uint32_t readPeriod = 0;
+    uint32_t startReadPeriod = 0;
 };
