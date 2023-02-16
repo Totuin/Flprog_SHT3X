@@ -3,14 +3,7 @@
 FLProgSHT3X::FLProgSHT3X(FLProgI2C *device)
 {
     i2cDevice = device;
-}
-
-void FLProgSHT3X::checkDelay()
-{
-    if (flprog::isTimer(startDelay, sizeDelay))
-    {
-        step = stepAfterDelay;
-    }
+    addres = 0x44;
 }
 
 bool FLProgSHT3X::writeCommand(uint16_t command)
@@ -18,7 +11,7 @@ bool FLProgSHT3X::writeCommand(uint16_t command)
     uint8_t cmd[2];
     cmd[0] = command >> 8;
     cmd[1] = command & 0xFF;
-    return i2cDevice->fullWrite(FLPROG_SHT31X_DEFAULT_ADDR, cmd, 2);
+    return i2cDevice->fullWrite(addres, cmd, 2);
 }
 
 uint16_t FLProgSHT3X::readStatus()
@@ -30,7 +23,7 @@ uint16_t FLProgSHT3X::readStatus()
         return 0;
     }
     uint8_t data[3];
-    codeError = i2cDevice->fullRead(FLPROG_SHT31X_DEFAULT_ADDR, data, 3);
+    codeError = i2cDevice->fullRead(addres, data, 3);
     if (codeError)
     {
         createError();
@@ -44,23 +37,13 @@ uint16_t FLProgSHT3X::readStatus()
 
 void FLProgSHT3X::pool()
 {
-    if (readPeriod > 0)
-    {
-        if (flprog::isTimer(startReadPeriod, readPeriod))
-        {
-            startReadPeriod = millis();
-            read();
-        }
-    }
-    if (step == FLPROG_SHT31X_WAITING_DELAY)
-    {
-        checkDelay();
-    }
+    checkReadPeriod();
+    checkDelay();
     if (step == FLPROG_HTU_READ_SENSOR_STEP1)
     {
         readSensor1();
     }
-    if (step == FLPROG_SHT31X_WAITING_READ_STEP)
+    if (step == FLPROG_SENSOR_WAITING_READ_STEP)
     {
         if (heaterStatus != newHeaterStatus)
         {
@@ -68,21 +51,14 @@ void FLProgSHT3X::pool()
         }
         else
         {
-            if (isNeededRead)
-            {
-                readSensor();
-                isNeededRead = false;
-            }
+            checkNeededRead();
         }
     }
 }
 
 void FLProgSHT3X::createError()
 {
-    startDelay = millis();
-    sizeDelay = 500;
-    stepAfterDelay = FLPROG_SHT31X_WAITING_READ_STEP;
-    step = FLPROG_SHT31X_WAITING_DELAY;
+    gotoStepWithDelay(FLPROG_SENSOR_WAITING_READ_STEP, 500);
 }
 
 void FLProgSHT3X::readSensor()
@@ -93,16 +69,13 @@ void FLProgSHT3X::readSensor()
         createError();
         return;
     }
-    startDelay = millis();
-    sizeDelay = 20;
-    stepAfterDelay = FLPROG_HTU_READ_SENSOR_STEP1;
-    step = FLPROG_SHT31X_WAITING_DELAY;
+    gotoStepWithDelay(FLPROG_HTU_READ_SENSOR_STEP1, 20);
 }
 
 void FLProgSHT3X::readSensor1()
 {
     uint8_t readbuffer[6];
-    codeError = i2cDevice->fullRead(FLPROG_SHT31X_DEFAULT_ADDR, readbuffer, 6);
+    codeError = i2cDevice->fullRead(addres, readbuffer, 6);
     if (codeError)
     {
         createError();
@@ -111,8 +84,8 @@ void FLProgSHT3X::readSensor1()
     if (readbuffer[2] != crc8(readbuffer, 2) ||
         readbuffer[5] != crc8(readbuffer + 3, 2))
     {
-        codeError = FLPROG_SHT31X_READ_DATA_ERROR;
-        step = FLPROG_SHT31X_WAITING_READ_STEP;
+        codeError = FLPROG_SENSOR_CRC_ERROR;
+        step = FLPROG_SENSOR_WAITING_READ_STEP;
         return;
     }
     int32_t stemp = (int32_t)(((uint32_t)readbuffer[0] << 8) | readbuffer[1]);
@@ -121,8 +94,8 @@ void FLProgSHT3X::readSensor1()
     stemp = ((uint32_t)readbuffer[3] << 8) | readbuffer[4];
     stemp = (625 * stemp) >> 12;
     hum = (float)stemp / 100.0f;
-    codeError = FLPROG_SHT31X_DEVICE_NOT_ERROR;
-    step = FLPROG_SHT31X_WAITING_READ_STEP;
+    codeError = FLPROG_SENSOR_NOT_ERROR;
+    step = FLPROG_SENSOR_WAITING_READ_STEP;
 }
 
 uint8_t FLProgSHT3X::crc8(const uint8_t *data, int len)
@@ -139,11 +112,6 @@ uint8_t FLProgSHT3X::crc8(const uint8_t *data, int len)
         }
     }
     return crc;
-}
-
-void FLProgSHT3X::read()
-{
-    isNeededRead = true;
 }
 
 bool FLProgSHT3X::isHeaterEnabled()
@@ -172,11 +140,8 @@ void FLProgSHT3X::setHeater()
         createError();
         return;
     }
-    startDelay = millis();
-    sizeDelay = 1;
-    stepAfterDelay = FLPROG_SHT31X_WAITING_READ_STEP;
-    step = FLPROG_SHT31X_WAITING_DELAY;
     heaterStatus = newHeaterStatus;
+    gotoStepWithDelay(FLPROG_SENSOR_WAITING_READ_STEP, 1);
 }
 
 void FLProgSHT3X::heater(bool status)
@@ -184,7 +149,3 @@ void FLProgSHT3X::heater(bool status)
     newHeaterStatus = status;
 }
 
-void FLProgSHT3X::setReadPeriod(uint32_t period)
-{
-    readPeriod = period;
-}
