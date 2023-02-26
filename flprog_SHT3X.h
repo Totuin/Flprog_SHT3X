@@ -1,6 +1,7 @@
 #pragma once
 #include "Arduino.h"
 #include "flprogUtilites.h"
+#include "flprogI2C.h"
 
 #define FLPROG_SHT31X_MEAS_HIGHREP_STRETCH 0x2C06 /**< Measurement High Repeatability with Clock Stretch Enabled */
 #define FLPROG_SHT31X_MEAS_MEDREP_STRETCH 0x2C0D  /**< Measurement Medium Repeatability with Clock Stretch Enabled */
