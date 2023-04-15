@@ -1,6 +1,6 @@
 #include "flprog_SHT3X.h"
 
-FLProgSHT3X::FLProgSHT3X(FLProgI2C *device)
+FLProgSHT3X::FLProgSHT3X(AbstractFLProgI2C *device)
 {
     i2cDevice = device;
     addres = 0x44;

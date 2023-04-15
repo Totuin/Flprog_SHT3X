@@ -22,7 +22,7 @@
 class FLProgSHT3X : public FLProgI2cStepWorkSensor
 {
 public:
-    FLProgSHT3X(FLProgI2C *device);
+    FLProgSHT3X(AbstractFLProgI2C *device);
     void pool();
     float getHumidity() { return hum; };
     float getTemperature() { return temper; };
