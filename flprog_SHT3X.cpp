@@ -120,7 +120,7 @@ bool FLProgSHT3X::isHeaterEnabled()
     if (codeError)
     {
         createError();
-        return;
+        return false;
     }
     return (bool)bitRead(regValue, FLPROG_SHT31X_REG_HEATER_BIT);
 }
