@@ -1,0 +1,34 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+#######################################
+# # Datatypes (KEYWORD1)
+#######################################
+FLProgSHT3X	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+getHumidity	KEYWORD2
+getTemperature	KEYWORD2
+heater	KEYWORD2
+isHeaterEnabled	KEYWORD2
+pool	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+FLPROG_HTU_READ_SENSOR_STEP1	LITERAL1
+FLPROG_SHT31X_CLEARSTATUS	LITERAL1
+FLPROG_SHT31X_HEATERDIS	LITERAL1
+FLPROG_SHT31X_HEATEREN	LITERAL1
+FLPROG_SHT31X_MEAS_HIGHREP	LITERAL1
+FLPROG_SHT31X_MEAS_HIGHREP_STRETCH	LITERAL1
+FLPROG_SHT31X_MEAS_LOWREP	LITERAL1
+FLPROG_SHT31X_MEAS_LOWREP_STRETCH	LITERAL1
+FLPROG_SHT31X_MEAS_MEDREP	LITERAL1
+FLPROG_SHT31X_MEAS_MEDREP_STRETCH	LITERAL1
+FLPROG_SHT31X_POLYNOMIAL	LITERAL1
+FLPROG_SHT31X_READSTATUS	LITERAL1
+FLPROG_SHT31X_REG_HEATER_BIT	LITERAL1
+FLPROG_SHT31X_SOFTRESET	LITERAL1
